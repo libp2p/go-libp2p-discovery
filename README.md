@@ -7,6 +7,12 @@
 
 > Interfaces for active peer discovery
 
+This package contains interfaces and utilities for active peer discovery.
+Peers providing a service use the interface to advertise their presence in some namespace.
+Vice-versa, peers seeking a service use the interface to discover peers that have previosuly advertised
+as service providers.
+The package also includes a baseline implementation for discovery through [Content Routing](https://github.com/libp2p/go-libp2p-routing).
+
 ## Documenation
 
 See https://godoc.org/github.com/libp2p/go-libp2p-discovery.
