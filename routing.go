@@ -12,10 +12,10 @@ import (
 
 // RoutingDiscovery is an implementation of discovery using ContentRouting
 type RoutingDiscovery struct {
-	router routing.ContentRouting
+	routing.ContentRouting
 }
 
-func NewRoutingDiscovery(router routing.ContentRouting) Discovery {
+func NewRoutingDiscovery(router routing.ContentRouting) *RoutingDiscovery {
 	return &RoutingDiscovery{router}
 }
 
@@ -25,7 +25,7 @@ func (d *RoutingDiscovery) Advertise(ctx context.Context, ns string, opts ...Opt
 		return 0, err
 	}
 
-	err = d.router.Provide(ctx, cid, true)
+	err = d.Provide(ctx, cid, true)
 	if err != nil {
 		return 0, err
 	}
@@ -35,7 +35,7 @@ func (d *RoutingDiscovery) Advertise(ctx context.Context, ns string, opts ...Opt
 }
 
 func (d *RoutingDiscovery) FindPeers(ctx context.Context, ns string, opts ...Option) (<-chan pstore.PeerInfo, error) {
-	options := &Options{}
+	var options Options
 	err := options.Apply(opts...)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (d *RoutingDiscovery) FindPeers(ctx context.Context, ns string, opts ...Opt
 		return nil, err
 	}
 
-	return d.router.FindProvidersAsync(ctx, cid, limit), nil
+	return d.FindProvidersAsync(ctx, cid, limit), nil
 }
 
 func nsToCid(ns string) (cid.Cid, error) {
