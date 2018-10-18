@@ -11,6 +11,7 @@ import (
 )
 
 // RoutingDiscovery is an implementation of discovery using ContentRouting
+// Namespaces are translated to Cids using the SHA256 hash.
 type RoutingDiscovery struct {
 	routing.ContentRouting
 }
