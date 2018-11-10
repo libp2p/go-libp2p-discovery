@@ -63,6 +63,6 @@
   "license": "",
   "name": "go-libp2p-discovery",
   "releaseCmd": "git commit -a -m \"gx publish $VERSION\"",
-  "version": "1.0.2"
+  "version": "1.0.3"
 }
 
