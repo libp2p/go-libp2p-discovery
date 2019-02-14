@@ -56,7 +56,7 @@ func (d *RoutingDiscovery) FindPeers(ctx context.Context, ns string, opts ...Opt
 }
 
 func nsToCid(ns string) (cid.Cid, error) {
-	h, err := mh.Encode([]byte(ns), mh.SHA2_256)
+	h, err := mh.Sum([]byte(ns), mh.SHA2_256, -1)
 	if err != nil {
 		return cid.Undef, err
 	}
