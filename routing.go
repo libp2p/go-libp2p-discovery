@@ -26,7 +26,11 @@ func (d *RoutingDiscovery) Advertise(ctx context.Context, ns string, opts ...Opt
 		return 0, err
 	}
 
-	err = d.Provide(ctx, cid, true)
+	// this context requires a timeout or else the DHT may never find any peers
+	pctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+
+	err = d.Provide(pctx, cid, true)
 	if err != nil {
 		return 0, err
 	}
