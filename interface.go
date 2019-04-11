@@ -1,26 +1,12 @@
 package discovery
 
-import (
-	"context"
-	"time"
+import moved "github.com/libp2p/go-libp2p/skel/discovery"
 
-	pstore "github.com/libp2p/go-libp2p-peerstore"
-)
+// Deprecated: use skel.Advertiser instead.
+type Advertiser = moved.Advertiser
 
-// Advertiser is an interface for advertising services
-type Advertiser interface {
-	// Advertise advertises a service
-	Advertise(ctx context.Context, ns string, opts ...Option) (time.Duration, error)
-}
+// Deprecated: use skel.Discoverer instead.
+type Discoverer = moved.Discoverer
 
-// Discoverer is an interface for peer discovery
-type Discoverer interface {
-	// FindPeers discovers peers providing a service
-	FindPeers(ctx context.Context, ns string, opts ...Option) (<-chan pstore.PeerInfo, error)
-}
-
-// Discovery is an interface that combines service advertisement and peer discovery
-type Discovery interface {
-	Advertiser
-	Discoverer
-}
+// Deprecated: use skel.Discovery instead.
+type Discovery = moved.Discovery

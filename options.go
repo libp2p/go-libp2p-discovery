@@ -2,40 +2,27 @@ package discovery
 
 import (
 	"time"
+
+	moved "github.com/libp2p/go-libp2p/skel/discovery"
 )
 
-// Option is a single discovery option
-type Option func(opts *Options) error
+// Deprecated: use skel.DiscoveryOpt instead.
+type Option = moved.DiscoveryOpt
 
-// Options is a set of discovery options
-type Options struct {
-	Ttl   time.Duration
-	Limit int
-	// Other (implementation-specific) options
-	Other map[interface{}]interface{}
-}
-
-// Apply applies the given options to this Options
-func (opts *Options) Apply(options ...Option) error {
-	for _, o := range options {
-		if err := o(opts); err != nil {
-			return err
-		}
-	}
-	return nil
-}
+// Deprecated: use skel.DiscoveryOpts instead.
+type Options = moved.DiscoveryOpts
 
 // TTL is an option that provides a hint for the duration of an advertisement
-func TTL(ttl time.Duration) Option {
-	return func(opts *Options) error {
+func TTL(ttl time.Duration) moved.DiscoveryOpt {
+	return func(opts *moved.DiscoveryOpts) error {
 		opts.Ttl = ttl
 		return nil
 	}
 }
 
 // Limit is an option that provides an upper bound on the peer count for discovery
-func Limit(limit int) Option {
-	return func(opts *Options) error {
+func Limit(limit int) moved.DiscoveryOpt {
+	return func(opts *moved.DiscoveryOpts) error {
 		opts.Limit = limit
 		return nil
 	}

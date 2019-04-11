@@ -10,7 +10,7 @@ import (
 
 var log = logging.Logger("discovery")
 
-// FindPeers is a utility function that synchonously collects peers from a Discoverer
+// FindPeers is a utility function that synchronously collects peers from a Discoverer.
 func FindPeers(ctx context.Context, d Discoverer, ns string, limit int) ([]pstore.PeerInfo, error) {
 	res := make([]pstore.PeerInfo, 0, limit)
 
@@ -26,7 +26,7 @@ func FindPeers(ctx context.Context, d Discoverer, ns string, limit int) ([]pstor
 	return res, nil
 }
 
-// Advertise is a utility function that persistently advertises a service through an Advertiser
+// Advertise is a utility function that persistently advertises a service through an Advertiser.
 func Advertise(ctx context.Context, a Advertiser, ns string) {
 	go func() {
 		for {
