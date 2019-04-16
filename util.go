@@ -4,15 +4,16 @@ import (
 	"context"
 	"time"
 
+	"github.com/libp2p/go-libp2p-core/peer"
+
 	logging "github.com/ipfs/go-log"
-	pstore "github.com/libp2p/go-libp2p-peerstore"
 )
 
 var log = logging.Logger("discovery")
 
 // FindPeers is a utility function that synchronously collects peers from a Discoverer.
-func FindPeers(ctx context.Context, d Discoverer, ns string, limit int) ([]pstore.PeerInfo, error) {
-	res := make([]pstore.PeerInfo, 0, limit)
+func FindPeers(ctx context.Context, d Discoverer, ns string, limit int) ([]peer.Info, error) {
+	res := make([]peer.Info, 0, limit)
 
 	ch, err := d.FindPeers(ctx, ns, Limit(limit))
 	if err != nil {

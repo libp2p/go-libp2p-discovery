@@ -1,6 +1,6 @@
 package discovery
 
-import moved "github.com/libp2p/go-libp2p/skel/discovery"
+import moved "github.com/libp2p/go-libp2p-core/discovery"
 
 // Deprecated: use skel.Advertiser instead.
 type Advertiser = moved.Advertiser

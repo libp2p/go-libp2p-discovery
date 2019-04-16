@@ -3,7 +3,7 @@ package discovery
 import (
 	"time"
 
-	moved "github.com/libp2p/go-libp2p/skel/discovery"
+	moved "github.com/libp2p/go-libp2p-core/discovery"
 )
 
 // Deprecated: use skel.DiscoveryOpt instead.
