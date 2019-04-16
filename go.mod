@@ -1,7 +1,5 @@
 module github.com/libp2p/go-libp2p-discovery
 
-go 1.11
-
 require (
 	github.com/ipfs/go-cid v0.0.1
 	github.com/ipfs/go-log v0.0.1
