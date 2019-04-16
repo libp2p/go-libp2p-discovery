@@ -6,10 +6,10 @@ import (
 	moved "github.com/libp2p/go-libp2p-core/discovery"
 )
 
-// Deprecated: use skel.DiscoveryOpt instead.
+// Deprecated: use github.com/libp2p/go-libp2p-core/discovery.DiscoveryOpt instead.
 type Option = moved.DiscoveryOpt
 
-// Deprecated: use skel.DiscoveryOpts instead.
+// Deprecated: use github.com/libp2p/go-libp2p-core/discovery.DiscoveryOpts instead.
 type Options = moved.DiscoveryOpts
 
 // TTL is an option that provides a hint for the duration of an advertisement
