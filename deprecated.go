@@ -15,18 +15,18 @@ type Discoverer = moved.Discoverer
 // Deprecated: use skel.Discovery instead.
 type Discovery = moved.Discovery
 
-// Deprecated: use github.com/libp2p/go-libp2p-core/discovery.DiscoveryOpt instead.
-type Option = moved.DiscoveryOpt
+// Deprecated: use github.com/libp2p/go-libp2p-core/discovery.Option instead.
+type Option = moved.Option
 
-// Deprecated: use github.com/libp2p/go-libp2p-core/discovery.DiscoveryOpts instead.
-type Options = moved.DiscoveryOpts
+// Deprecated: use github.com/libp2p/go-libp2p-core/discovery.Options instead.
+type Options = moved.Options
 
 // Deprecated: use github.com/libp2p/go-libp2p-core/discovery.TTL instead.
-func TTL(ttl time.Duration) moved.DiscoveryOpt {
+func TTL(ttl time.Duration) moved.Option {
 	return moved.TTL(ttl)
 }
 
 // Deprecated: use github.com/libp2p/go-libp2p-core/discovery.Limit instead.
-func Limit(limit int) moved.DiscoveryOpt {
+func Limit(limit int) moved.Option {
 	return moved.Limit(limit)
 }
