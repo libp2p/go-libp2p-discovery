@@ -3,30 +3,30 @@ package discovery
 import (
 	"time"
 
-	moved "github.com/libp2p/go-libp2p-core/discovery"
+	core "github.com/libp2p/go-libp2p-core/discovery"
 )
 
 // Deprecated: use skel.Advertiser instead.
-type Advertiser = moved.Advertiser
+type Advertiser = core.Advertiser
 
 // Deprecated: use skel.Discoverer instead.
-type Discoverer = moved.Discoverer
+type Discoverer = core.Discoverer
 
 // Deprecated: use skel.Discovery instead.
-type Discovery = moved.Discovery
+type Discovery = core.Discovery
 
 // Deprecated: use github.com/libp2p/go-libp2p-core/discovery.Option instead.
-type Option = moved.Option
+type Option = core.Option
 
 // Deprecated: use github.com/libp2p/go-libp2p-core/discovery.Options instead.
-type Options = moved.Options
+type Options = core.Options
 
 // Deprecated: use github.com/libp2p/go-libp2p-core/discovery.TTL instead.
-func TTL(ttl time.Duration) moved.Option {
-	return moved.TTL(ttl)
+func TTL(ttl time.Duration) core.Option {
+	return core.TTL(ttl)
 }
 
 // Deprecated: use github.com/libp2p/go-libp2p-core/discovery.Limit instead.
-func Limit(limit int) moved.Option {
-	return moved.Limit(limit)
+func Limit(limit int) core.Option {
+	return core.Limit(limit)
 }

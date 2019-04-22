@@ -77,10 +77,12 @@ github.com/libp2p/go-flow-metrics v0.0.1 h1:0gxuFd2GuK7IIP5pKljLwps6TvcuYgvG7Atq
 github.com/libp2p/go-flow-metrics v0.0.1/go.mod h1:Iv1GH0sG8DtYN3SVJ2eG221wMiNpZxBdp967ls1g+k8=
 github.com/libp2p/go-libp2p-blankhost v0.0.1 h1:/mZuuiwntNR8RywnCFlGHLKrKLYne+qciBpQXWqp5fk=
 github.com/libp2p/go-libp2p-blankhost v0.0.1/go.mod h1:Ibpbw/7cPPYwFb7PACIWdvxxv0t0XCCI10t7czjAjTc=
-github.com/libp2p/go-libp2p-core v0.0.0-20190417162149-f41b5dd7c01b h1:G7jk8dtQP5NeK5uckxMarWHNH0bTTDpSUMPUQwGtFEU=
-github.com/libp2p/go-libp2p-core v0.0.0-20190417162149-f41b5dd7c01b/go.mod h1:4iqSipG3tx8vB0FVHHRPVl6/lZqPht2Lhd/ZBlIGNSo=
+github.com/libp2p/go-libp2p-core v0.0.0-20190422125857-3a54eb68d178 h1:+wsyafI3SBZy7fMT8bTdHyrzKnPJfDShnbfjxXM3uqk=
+github.com/libp2p/go-libp2p-core v0.0.0-20190422125857-3a54eb68d178/go.mod h1:GYAqGjbAd2HxtkR5D6HsOp1ZPBrGvCD0eCLX8rQtNMw=
 github.com/libp2p/go-libp2p-crypto v0.0.1 h1:JNQd8CmoGTohO/akqrH16ewsqZpci2CbgYH/LmYl8gw=
 github.com/libp2p/go-libp2p-crypto v0.0.1/go.mod h1:yJkNyDmO341d5wwXxDUGO0LykUVT72ImHNUqh5D/dBE=
+github.com/libp2p/go-libp2p-crypto v0.0.2-0.20190422130203-0dad27f616de h1:yM+S5llDeinUQnBTTQHVvum5iBtLHFCUIPGfDQCYC9Y=
+github.com/libp2p/go-libp2p-crypto v0.0.2-0.20190422130203-0dad27f616de/go.mod h1:WJ6wEfm4tBdTVrgE7Mle69TjHcAxZArSmhNasnU5HXg=
 github.com/libp2p/go-libp2p-host v0.0.1 h1:dnqusU+DheGcdxrE718kG4XgHNuL2n9eEv8Rg5zy8hQ=
 github.com/libp2p/go-libp2p-host v0.0.1/go.mod h1:qWd+H1yuU0m5CwzAkvbSjqKairayEHdR5MMl7Cwa7Go=
 github.com/libp2p/go-libp2p-interface-connmgr v0.0.1 h1:Q9EkNSLAOF+u90L88qmE9z/fTdjLh8OsJwGw74mkwk4=
