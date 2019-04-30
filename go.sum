@@ -81,8 +81,6 @@ github.com/libp2p/go-libp2p-core v0.0.0-20190422125857-3a54eb68d178 h1:+wsyafI3S
 github.com/libp2p/go-libp2p-core v0.0.0-20190422125857-3a54eb68d178/go.mod h1:GYAqGjbAd2HxtkR5D6HsOp1ZPBrGvCD0eCLX8rQtNMw=
 github.com/libp2p/go-libp2p-crypto v0.0.1 h1:JNQd8CmoGTohO/akqrH16ewsqZpci2CbgYH/LmYl8gw=
 github.com/libp2p/go-libp2p-crypto v0.0.1/go.mod h1:yJkNyDmO341d5wwXxDUGO0LykUVT72ImHNUqh5D/dBE=
-github.com/libp2p/go-libp2p-crypto v0.0.2-0.20190422130203-0dad27f616de h1:yM+S5llDeinUQnBTTQHVvum5iBtLHFCUIPGfDQCYC9Y=
-github.com/libp2p/go-libp2p-crypto v0.0.2-0.20190422130203-0dad27f616de/go.mod h1:WJ6wEfm4tBdTVrgE7Mle69TjHcAxZArSmhNasnU5HXg=
 github.com/libp2p/go-libp2p-host v0.0.1 h1:dnqusU+DheGcdxrE718kG4XgHNuL2n9eEv8Rg5zy8hQ=
 github.com/libp2p/go-libp2p-host v0.0.1/go.mod h1:qWd+H1yuU0m5CwzAkvbSjqKairayEHdR5MMl7Cwa7Go=
 github.com/libp2p/go-libp2p-interface-connmgr v0.0.1 h1:Q9EkNSLAOF+u90L88qmE9z/fTdjLh8OsJwGw74mkwk4=

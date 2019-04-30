@@ -43,7 +43,7 @@ func (d *RoutingDiscovery) Advertise(ctx context.Context, ns string, opts ...Opt
 	return 6 * time.Hour, nil
 }
 
-func (d *RoutingDiscovery) FindPeers(ctx context.Context, ns string, opts ...Option) (<-chan peer.Info, error) {
+func (d *RoutingDiscovery) FindPeers(ctx context.Context, ns string, opts ...Option) (<-chan peer.AddrInfo, error) {
 	var options Options
 	err := options.Apply(opts...)
 	if err != nil {

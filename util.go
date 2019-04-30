@@ -12,8 +12,8 @@ import (
 var log = logging.Logger("discovery")
 
 // FindPeers is a utility function that synchronously collects peers from a Discoverer.
-func FindPeers(ctx context.Context, d Discoverer, ns string, limit int) ([]peer.Info, error) {
-	res := make([]peer.Info, 0, limit)
+func FindPeers(ctx context.Context, d Discoverer, ns string, limit int) ([]peer.AddrInfo, error) {
+	res := make([]peer.AddrInfo, 0, limit)
 
 	ch, err := d.FindPeers(ctx, ns, Limit(limit))
 	if err != nil {
