@@ -4,15 +4,16 @@ import (
 	"context"
 	"time"
 
+	"github.com/libp2p/go-libp2p-core/peer"
+
 	logging "github.com/ipfs/go-log"
-	pstore "github.com/libp2p/go-libp2p-peerstore"
 )
 
 var log = logging.Logger("discovery")
 
-// FindPeers is a utility function that synchonously collects peers from a Discoverer
-func FindPeers(ctx context.Context, d Discoverer, ns string, opts ...Option) ([]pstore.PeerInfo, error) {
-	var res []pstore.PeerInfo
+// FindPeers is a utility function that synchronously collects peers from a Discoverer.
+func FindPeers(ctx context.Context, d Discoverer, ns string, opts ...Option) ([]peer.AddrInfo, error) {
+	var res []peer.AddrInfo
 
 	ch, err := d.FindPeers(ctx, ns, opts...)
 	if err != nil {
@@ -26,7 +27,7 @@ func FindPeers(ctx context.Context, d Discoverer, ns string, opts ...Option) ([]
 	return res, nil
 }
 
-// Advertise is a utility function that persistently advertises a service through an Advertiser
+// Advertise is a utility function that persistently advertises a service through an Advertiser.
 func Advertise(ctx context.Context, a Advertiser, ns string, opts ...Option) {
 	go func() {
 		for {

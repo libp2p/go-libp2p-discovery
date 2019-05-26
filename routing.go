@@ -5,8 +5,10 @@ import (
 	"time"
 
 	cid "github.com/ipfs/go-cid"
-	pstore "github.com/libp2p/go-libp2p-peerstore"
-	routing "github.com/libp2p/go-libp2p-routing"
+
+	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/routing"
+
 	mh "github.com/multiformats/go-multihash"
 )
 
@@ -53,7 +55,7 @@ func (d *RoutingDiscovery) Advertise(ctx context.Context, ns string, opts ...Opt
 	return ttl, nil
 }
 
-func (d *RoutingDiscovery) FindPeers(ctx context.Context, ns string, opts ...Option) (<-chan pstore.PeerInfo, error) {
+func (d *RoutingDiscovery) FindPeers(ctx context.Context, ns string, opts ...Option) (<-chan peer.AddrInfo, error) {
 	var options Options
 	err := options.Apply(opts...)
 	if err != nil {

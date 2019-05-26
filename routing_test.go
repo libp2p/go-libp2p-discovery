@@ -7,15 +7,14 @@ import (
 
 	cid "github.com/ipfs/go-cid"
 	bhost "github.com/libp2p/go-libp2p-blankhost"
-	host "github.com/libp2p/go-libp2p-host"
-	peer "github.com/libp2p/go-libp2p-peer"
-	pstore "github.com/libp2p/go-libp2p-peerstore"
+	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/peer"
 	swarmt "github.com/libp2p/go-libp2p-swarm/testing"
 )
 
 type mockRoutingTable struct {
 	mx        sync.Mutex
-	providers map[string]map[peer.ID]pstore.PeerInfo
+	providers map[string]map[peer.ID]peer.AddrInfo
 }
 
 type mockRouting struct {
@@ -24,7 +23,7 @@ type mockRouting struct {
 }
 
 func NewMockRoutingTable() *mockRoutingTable {
-	return &mockRoutingTable{providers: make(map[string]map[peer.ID]pstore.PeerInfo)}
+	return &mockRoutingTable{providers: make(map[string]map[peer.ID]peer.AddrInfo)}
 }
 
 func NewMockRouting(h host.Host, tab *mockRoutingTable) *mockRouting {
@@ -37,17 +36,17 @@ func (m *mockRouting) Provide(ctx context.Context, cid cid.Cid, bcast bool) erro
 
 	pmap, ok := m.tab.providers[cid.String()]
 	if !ok {
-		pmap = make(map[peer.ID]pstore.PeerInfo)
+		pmap = make(map[peer.ID]peer.AddrInfo)
 		m.tab.providers[cid.String()] = pmap
 	}
 
-	pmap[m.h.ID()] = pstore.PeerInfo{ID: m.h.ID(), Addrs: m.h.Addrs()}
+	pmap[m.h.ID()] = peer.AddrInfo{ID: m.h.ID(), Addrs: m.h.Addrs()}
 
 	return nil
 }
 
-func (m *mockRouting) FindProvidersAsync(ctx context.Context, cid cid.Cid, limit int) <-chan pstore.PeerInfo {
-	ch := make(chan pstore.PeerInfo)
+func (m *mockRouting) FindProvidersAsync(ctx context.Context, cid cid.Cid, limit int) <-chan peer.AddrInfo {
+	ch := make(chan peer.AddrInfo)
 	go func() {
 		defer close(ch)
 		m.tab.mx.Lock()
