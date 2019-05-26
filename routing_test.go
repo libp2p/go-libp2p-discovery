@@ -14,7 +14,7 @@ import (
 
 type mockRoutingTable struct {
 	mx        sync.Mutex
-	providers map[string]map[peer.ID]peer.Info
+	providers map[string]map[peer.ID]peer.AddrInfo
 }
 
 type mockRouting struct {
@@ -23,7 +23,7 @@ type mockRouting struct {
 }
 
 func NewMockRoutingTable() *mockRoutingTable {
-	return &mockRoutingTable{providers: make(map[string]map[peer.ID]peer.Info)}
+	return &mockRoutingTable{providers: make(map[string]map[peer.ID]peer.AddrInfo)}
 }
 
 func NewMockRouting(h host.Host, tab *mockRoutingTable) *mockRouting {
@@ -36,17 +36,17 @@ func (m *mockRouting) Provide(ctx context.Context, cid cid.Cid, bcast bool) erro
 
 	pmap, ok := m.tab.providers[cid.String()]
 	if !ok {
-		pmap = make(map[peer.ID]peer.Info)
+		pmap = make(map[peer.ID]peer.AddrInfo)
 		m.tab.providers[cid.String()] = pmap
 	}
 
-	pmap[m.h.ID()] = peer.Info{ID: m.h.ID(), Addrs: m.h.Addrs()}
+	pmap[m.h.ID()] = peer.AddrInfo{ID: m.h.ID(), Addrs: m.h.Addrs()}
 
 	return nil
 }
 
-func (m *mockRouting) FindProvidersAsync(ctx context.Context, cid cid.Cid, limit int) <-chan peer.Info {
-	ch := make(chan peer.Info)
+func (m *mockRouting) FindProvidersAsync(ctx context.Context, cid cid.Cid, limit int) <-chan peer.AddrInfo {
+	ch := make(chan peer.AddrInfo)
 	go func() {
 		defer close(ch)
 		m.tab.mx.Lock()
@@ -88,7 +88,7 @@ func TestRoutingDiscovery(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	pis, err := FindPeers(ctx, d2, "/test", 20)
+	pis, err := FindPeers(ctx, d2, "/test", Limit(20))
 	if err != nil {
 		t.Fatal(err)
 	}

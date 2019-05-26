@@ -23,6 +23,19 @@ func NewRoutingDiscovery(router routing.ContentRouting) *RoutingDiscovery {
 }
 
 func (d *RoutingDiscovery) Advertise(ctx context.Context, ns string, opts ...Option) (time.Duration, error) {
+	var options Options
+	err := options.Apply(opts...)
+	if err != nil {
+		return 0, err
+	}
+
+	ttl := options.Ttl
+	if ttl == 0 || ttl > 3*time.Hour {
+		// the DHT provider record validity is 24hrs, but it is recommnded to republish at least every 6hrs
+		// we go one step further and republish every 3hrs
+		ttl = 3 * time.Hour
+	}
+
 	cid, err := nsToCid(ns)
 	if err != nil {
 		return 0, err
@@ -39,8 +52,7 @@ func (d *RoutingDiscovery) Advertise(ctx context.Context, ns string, opts ...Opt
 		return 0, err
 	}
 
-	// the DHT provider record validity is 24hrs, but it is recommnded to republish every 6hrs
-	return 6 * time.Hour, nil
+	return ttl, nil
 }
 
 func (d *RoutingDiscovery) FindPeers(ctx context.Context, ns string, opts ...Option) (<-chan peer.AddrInfo, error) {
