@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"context"
+	"github.com/libp2p/go-libp2p-core/discovery"
 	"time"
 
 	cid "github.com/ipfs/go-cid"
@@ -82,4 +83,30 @@ func nsToCid(ns string) (cid.Cid, error) {
 	}
 
 	return cid.NewCidV1(cid.Raw, h), nil
+}
+
+func NewDiscoveryRouting(disc discovery.Discovery) *DiscoveryRouting {
+	return &DiscoveryRouting{disc}
+}
+
+type DiscoveryRouting struct {
+	discovery.Discovery
+}
+
+func (r *DiscoveryRouting) Provide(ctx context.Context, c cid.Cid, bcast bool) error {
+	if !bcast {
+		return nil
+	}
+
+	_, err := r.Advertise(ctx, cidToNs(c))
+	return err
+}
+
+func (r *DiscoveryRouting) FindProvidersAsync(ctx context.Context, c cid.Cid, limit int) <-chan peer.AddrInfo {
+	ch, _ := r.FindPeers(ctx, cidToNs(c), discovery.Limit(limit))
+	return ch
+}
+
+func cidToNs(c cid.Cid) string {
+	return "/provider/" + c.String()
 }
