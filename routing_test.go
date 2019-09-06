@@ -217,8 +217,8 @@ func TestDiscoveryRouting(t *testing.T) {
 	d1 := &mockDiscoveryClient{h1, dserver}
 	d2 := &mockDiscoveryClient{h2, dserver}
 
-	r1 := NewDiscoveryRouting(d1)
-	r2 := NewDiscoveryRouting(d2)
+	r1 := NewDiscoveryRouting(d1, discovery.TTL(time.Hour))
+	r2 := NewDiscoveryRouting(d2, discovery.TTL(time.Hour))
 
 	c, err := nsToCid("/test")
 	if err != nil {

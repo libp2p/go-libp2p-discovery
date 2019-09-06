@@ -85,12 +85,13 @@ func nsToCid(ns string) (cid.Cid, error) {
 	return cid.NewCidV1(cid.Raw, h), nil
 }
 
-func NewDiscoveryRouting(disc discovery.Discovery) *DiscoveryRouting {
-	return &DiscoveryRouting{disc}
+func NewDiscoveryRouting(disc discovery.Discovery, opts ...discovery.Option) *DiscoveryRouting {
+	return &DiscoveryRouting{disc, opts}
 }
 
 type DiscoveryRouting struct {
 	discovery.Discovery
+	opts []discovery.Option
 }
 
 func (r *DiscoveryRouting) Provide(ctx context.Context, c cid.Cid, bcast bool) error {
@@ -98,12 +99,12 @@ func (r *DiscoveryRouting) Provide(ctx context.Context, c cid.Cid, bcast bool) e
 		return nil
 	}
 
-	_, err := r.Advertise(ctx, cidToNs(c))
+	_, err := r.Advertise(ctx, cidToNs(c), r.opts...)
 	return err
 }
 
 func (r *DiscoveryRouting) FindProvidersAsync(ctx context.Context, c cid.Cid, limit int) <-chan peer.AddrInfo {
-	ch, _ := r.FindPeers(ctx, cidToNs(c), discovery.Limit(limit))
+	ch, _ := r.FindPeers(ctx, cidToNs(c), append([]discovery.Option{discovery.Limit(limit)}, r.opts...)...)
 	return ch
 }
 
