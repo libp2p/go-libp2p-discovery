@@ -100,68 +100,7 @@ func (d *BackoffDiscovery) FindPeers(ctx context.Context, ns string, opts ...dis
 		}
 
 		c.ongoing = true
-
-		go func() {
-			defer func() {
-				c.mux.Lock()
-
-				for ch := range c.sendingChs {
-					close(ch)
-				}
-
-				// If the peer addresses have changed reset the backoff
-				if checkUpdates(c.prevPeers, c.peers) {
-					c.strat.Reset()
-					c.prevPeers = c.peers
-				}
-				c.nextDiscover = time.Now().Add(c.strat.Delay())
-
-				c.ongoing = false
-				c.peers = make(map[peer.ID]peer.AddrInfo)
-				c.sendingChs = make(map[chan peer.AddrInfo]int)
-				c.mux.Unlock()
-			}()
-
-			for {
-				select {
-				case ai, ok := <-pch:
-					if !ok {
-						return
-					}
-					c.mux.Lock()
-
-					// If we receive the same peer multiple times return the address union
-					var sendAi peer.AddrInfo
-					if prevAi, ok := c.peers[ai.ID]; ok {
-						if combinedAi := mergeAddrInfos(prevAi, ai); combinedAi != nil {
-							sendAi = *combinedAi
-						} else {
-							c.mux.Unlock()
-							continue
-						}
-					} else {
-						sendAi = ai
-					}
-
-					c.peers[ai.ID] = sendAi
-
-					for ch, rem := range c.sendingChs {
-						ch <- sendAi
-						if rem == 1 {
-							close(ch)
-							delete(c.sendingChs, ch)
-							break
-						} else if rem > 0 {
-							rem--
-						}
-					}
-
-					c.mux.Unlock()
-				case <-ctx.Done():
-					return
-				}
-			}
-		}()
+		go findPeerDispatcher(ctx, c, pch)
 		// If it's not yet time to search again then return cached peers
 	} else if !timeExpired {
 		chLen := options.Limit
@@ -180,55 +119,118 @@ func (d *BackoffDiscovery) FindPeers(ctx context.Context, ns string, opts ...dis
 	}
 
 	// Setup receiver channel for receiving peers from ongoing requests
-
 	evtCh := make(chan peer.AddrInfo, 32)
-	pch := make(chan peer.AddrInfo, 8)
+	pch := make(chan peer.AddrInfo, 32)
 	rcvPeers := make([]peer.AddrInfo, 0, 32)
 	for _, ai := range c.peers {
 		rcvPeers = append(rcvPeers, ai)
 	}
 	c.sendingChs[evtCh] = options.Limit
 
-	go func() {
-		defer close(pch)
-
-		for {
-			select {
-			case ai, ok := <-evtCh:
-				if ok {
-					rcvPeers = append(rcvPeers, ai)
-
-					sentAll := true
-				sendPeers:
-					for i, p := range rcvPeers {
-						select {
-						case pch <- p:
-						default:
-							rcvPeers = rcvPeers[i:]
-							sentAll = false
-							break sendPeers
-						}
-					}
-					if sentAll {
-						rcvPeers = []peer.AddrInfo{}
-					}
-				} else {
-					for _, p := range rcvPeers {
-						select {
-						case pch <- p:
-						case <-ctx.Done():
-							return
-						}
-					}
-					return
-				}
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
+	go findPeerReceiver(ctx, pch, evtCh, rcvPeers)
 
 	return pch, nil
+}
+
+func findPeerDispatcher(ctx context.Context, c *backoffCache, pch <-chan peer.AddrInfo) {
+	defer func() {
+		c.mux.Lock()
+
+		for ch := range c.sendingChs {
+			close(ch)
+		}
+
+		// If the peer addresses have changed reset the backoff
+		if checkUpdates(c.prevPeers, c.peers) {
+			c.strat.Reset()
+			c.prevPeers = c.peers
+		}
+		c.nextDiscover = time.Now().Add(c.strat.Delay())
+
+		c.ongoing = false
+		c.peers = make(map[peer.ID]peer.AddrInfo)
+		c.sendingChs = make(map[chan peer.AddrInfo]int)
+		c.mux.Unlock()
+	}()
+
+	for {
+		select {
+		case ai, ok := <-pch:
+			if !ok {
+				return
+			}
+			c.mux.Lock()
+
+			// If we receive the same peer multiple times return the address union
+			var sendAi peer.AddrInfo
+			if prevAi, ok := c.peers[ai.ID]; ok {
+				if combinedAi := mergeAddrInfos(prevAi, ai); combinedAi != nil {
+					sendAi = *combinedAi
+				} else {
+					c.mux.Unlock()
+					continue
+				}
+			} else {
+				sendAi = ai
+			}
+
+			c.peers[ai.ID] = sendAi
+
+			for ch, rem := range c.sendingChs {
+				ch <- sendAi
+				if rem == 1 {
+					close(ch)
+					delete(c.sendingChs, ch)
+					break
+				} else if rem > 0 {
+					rem--
+				}
+			}
+
+			c.mux.Unlock()
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+func findPeerReceiver(ctx context.Context, pch, evtCh chan peer.AddrInfo, rcvPeers []peer.AddrInfo) {
+	defer close(pch)
+
+	for {
+		select {
+		case ai, ok := <-evtCh:
+			if ok {
+				rcvPeers = append(rcvPeers, ai)
+
+				sentAll := true
+			sendPeers:
+				for i, p := range rcvPeers {
+					select {
+					case pch <- p:
+					default:
+						rcvPeers = rcvPeers[i:]
+						sentAll = false
+						break sendPeers
+					}
+				}
+				if sentAll {
+					rcvPeers = []peer.AddrInfo{}
+				}
+			} else {
+				for _, p := range rcvPeers {
+					select {
+					case pch <- p:
+					case <-ctx.Done():
+						return
+					}
+				}
+				return
+			}
+		case <-ctx.Done():
+			return
+		}
+	}
 }
 
 func mergeAddrInfos(prevAi, newAi peer.AddrInfo) *peer.AddrInfo {
