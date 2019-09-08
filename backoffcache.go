@@ -13,16 +13,16 @@ import (
 // BackoffDiscovery is an implementation of discovery that caches peer data and attenuates repeated queries
 type BackoffDiscovery struct {
 	disc         discovery.Discovery
-	strat        BackoffFactory
+	stratFactory BackoffFactory
 	peerCache    map[string]*backoffCache
 	peerCacheMux sync.RWMutex
 }
 
-func NewBackoffDiscovery(disc discovery.Discovery, strat BackoffFactory) (discovery.Discovery, error) {
+func NewBackoffDiscovery(disc discovery.Discovery, stratFactory BackoffFactory) (discovery.Discovery, error) {
 	return &BackoffDiscovery{
-		disc:      disc,
-		strat:     strat,
-		peerCache: make(map[string]*backoffCache),
+		disc:         disc,
+		stratFactory: stratFactory,
+		peerCache:    make(map[string]*backoffCache),
 	}, nil
 }
 
@@ -69,7 +69,7 @@ func (d *BackoffDiscovery) FindPeers(ctx context.Context, ns string, opts ...dis
 			prevPeers:    make(map[peer.ID]peer.AddrInfo),
 			peers:        make(map[peer.ID]peer.AddrInfo),
 			sendingChs:   make(map[chan peer.AddrInfo]int),
-			strat:        d.strat(),
+			strat:        d.stratFactory(),
 		}
 		d.peerCacheMux.Lock()
 		c, ok = d.peerCache[ns]

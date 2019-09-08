@@ -62,7 +62,7 @@ func (b *attemptBackoff) Reset() {
 	b.attempt = 0
 }
 
-func NewFixedBackoffFactory(delay time.Duration) BackoffFactory {
+func NewFixedBackoff(delay time.Duration) BackoffFactory {
 	return func() BackoffStrategy {
 		return &fixedBackoff{delay: delay}
 	}
@@ -78,7 +78,7 @@ func (b *fixedBackoff) Delay() time.Duration {
 
 func (b *fixedBackoff) Reset() {}
 
-func NewPolynomialBackoffFactory(min, max time.Duration, jitter Jitter,
+func NewPolynomialBackoff(min, max time.Duration, jitter Jitter,
 	timeUnits time.Duration, polyCoefs []float64, rng *rand.Rand) BackoffFactory {
 	return func() BackoffStrategy {
 		return &polynomialBackoff{
@@ -115,7 +115,7 @@ func (b *polynomialBackoff) Delay() time.Duration {
 	return b.jitter(time.Duration(float64(b.timeUnits)*polySum), b.min, b.max, b.rng)
 }
 
-func NewExponentialBackoffFactory(min, max time.Duration, jitter Jitter,
+func NewExponentialBackoff(min, max time.Duration, jitter Jitter,
 	timeUnits time.Duration, base float64, offset time.Duration, rng *rand.Rand) BackoffFactory {
 	return func() BackoffStrategy {
 		return &exponentialBackoff{
@@ -148,7 +148,7 @@ func (b *exponentialBackoff) Delay() time.Duration {
 		time.Duration(math.Pow(b.base, float64(attempt))*float64(b.timeUnits))+b.offset, b.min, b.max, b.rng)
 }
 
-func NewExponentialDecorrelatedJitterFactory(min, max time.Duration, base float64, rng *rand.Rand) BackoffFactory {
+func NewExponentialDecorrelatedJitter(min, max time.Duration, base float64, rng *rand.Rand) BackoffFactory {
 	return func() BackoffStrategy {
 		return &exponentialDecorrelatedJitter{
 			randomizedBackoff: randomizedBackoff{
