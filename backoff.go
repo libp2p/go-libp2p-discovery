@@ -103,14 +103,22 @@ type polynomialBackoff struct {
 }
 
 func (b *polynomialBackoff) Delay() time.Duration {
-	polySum := b.poly[0]
-	exp := 1
-	attempt := b.attempt
-	b.attempt++
+	var polySum float64
+	switch len(b.poly) {
+	case 0:
+		return 0
+	case 1:
+		polySum = b.poly[0]
+	default:
+		polySum = b.poly[0]
+		exp := 1
+		attempt := b.attempt
+		b.attempt++
 
-	for _, c := range b.poly[1:] {
-		exp *= attempt
-		polySum += float64(exp) * c
+		for _, c := range b.poly[1:] {
+			exp *= attempt
+			polySum += float64(exp) * c
+		}
 	}
 	return b.jitter(time.Duration(float64(b.timeUnits)*polySum), b.min, b.max, b.rng)
 }
