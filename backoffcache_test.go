@@ -169,7 +169,7 @@ func TestBackoffDiscoverySingleBackoff(t *testing.T) {
 	d1 := &mockDiscoveryClient{h1, discServer}
 	d2 := &mockDiscoveryClient{h2, discServer}
 
-	bkf := NewExponentialBackoffFactory(time.Millisecond*100, time.Second*10, NoJitter,
+	bkf := NewExponentialBackoff(time.Millisecond*100, time.Second*10, NoJitter,
 		time.Millisecond*100, 2.5, 0, nil)
 	dCache, err := NewBackoffDiscovery(d1, bkf)
 	if err != nil {
@@ -203,7 +203,7 @@ func TestBackoffDiscoveryMultipleBackoff(t *testing.T) {
 	d2 := &mockDiscoveryClient{h2, discServer}
 
 	// Startup delay is 0ms. First backoff after finding data is 100ms, second backoff is 250ms.
-	bkf := NewExponentialBackoffFactory(time.Millisecond*100, time.Second*10, NoJitter,
+	bkf := NewExponentialBackoff(time.Millisecond*100, time.Second*10, NoJitter,
 		time.Millisecond*100, 2.5, 0, nil)
 	dCache, err := NewBackoffDiscovery(d1, bkf)
 	if err != nil {
@@ -255,7 +255,7 @@ func TestBackoffDiscoverySimultaneousQuery(t *testing.T) {
 
 	d1 := &delayedDiscovery{advertisers[0], time.Millisecond * 10}
 
-	bkf := NewFixedBackoffFactory(time.Millisecond * 200)
+	bkf := NewFixedBackoff(time.Millisecond * 200)
 	dCache, err := NewBackoffDiscovery(d1, bkf)
 	if err != nil {
 		t.Fatal(err)

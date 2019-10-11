@@ -17,7 +17,7 @@ func TestFixedBackoff(t *testing.T) {
 	startDelay := time.Second
 	delay := startDelay
 
-	bkf := NewFixedBackoffFactory(delay)
+	bkf := NewFixedBackoff(delay)
 	delay *= 2
 	b1 := bkf()
 	delay *= 2
@@ -38,7 +38,7 @@ func TestFixedBackoff(t *testing.T) {
 
 func TestPolynomialBackoff(t *testing.T) {
 	rng := rand.New(rand.NewSource(0))
-	bkf := NewPolynomialBackoffFactory(time.Second, time.Second*33, NoJitter, time.Second, []float64{0.5, 2, 3}, rng)
+	bkf := NewPolynomialBackoff(time.Second, time.Second*33, NoJitter, time.Second, []float64{0.5, 2, 3}, rng)
 	b1 := bkf()
 	b2 := bkf()
 
@@ -58,7 +58,7 @@ func TestPolynomialBackoff(t *testing.T) {
 
 func TestExponentialBackoff(t *testing.T) {
 	rng := rand.New(rand.NewSource(0))
-	bkf := NewExponentialBackoffFactory(time.Millisecond*650, time.Second*7, NoJitter, time.Second, 1.5, -time.Millisecond*400, rng)
+	bkf := NewExponentialBackoff(time.Millisecond*650, time.Second*7, NoJitter, time.Second, 1.5, -time.Millisecond*400, rng)
 	b1 := bkf()
 	b2 := bkf()
 
