@@ -2,30 +2,34 @@ package discovery
 
 import (
 	"context"
+	lru "github.com/hashicorp/golang-lru"
 	"sync"
 	"time"
 
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
-
-	"github.com/hashicorp/golang-lru/simplelru"
 )
 
 type BackoffConnector struct {
-	cache      simplelru.LRUCache
+	cache      *lru.TwoQueueCache
 	host       host.Host
 	connTryDur time.Duration
 	backoff    BackoffFactory
 	mux        sync.Mutex
 }
 
-func NewBackoffConnector(h host.Host, cache simplelru.LRUCache, connectionTryDuration time.Duration, backoff BackoffFactory) *BackoffConnector {
+func NewBackoffConnector(h host.Host, cacheSize int, connectionTryDuration time.Duration, backoff BackoffFactory) (*BackoffConnector, error) {
+	cache, err := lru.New2Q(cacheSize)
+	if err != nil {
+		return nil, err
+	}
+
 	return &BackoffConnector{
 		cache:      cache,
 		host:       h,
 		connTryDur: connectionTryDuration,
 		backoff:    backoff,
-	}
+	}, nil
 }
 
 type connCacheData struct {
@@ -62,6 +66,7 @@ func (c *BackoffConnector) Connect(ctx context.Context, peerCh <-chan peer.AddrI
 				cachedPeer.nextTry = time.Now().Add(cachedPeer.strat.Delay())
 				c.cache.Add(pi.ID, cachedPeer)
 			}
+			c.mux.Unlock()
 
 			go func(pi peer.AddrInfo) {
 				ctx, cancel := context.WithTimeout(ctx, c.connTryDur)
