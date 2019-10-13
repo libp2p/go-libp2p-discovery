@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -16,14 +17,50 @@ type BackoffDiscovery struct {
 	stratFactory BackoffFactory
 	peerCache    map[string]*backoffCache
 	peerCacheMux sync.RWMutex
+
+	parallelBufSz int
+	returnedBufSz int
 }
 
-func NewBackoffDiscovery(disc discovery.Discovery, stratFactory BackoffFactory) (discovery.Discovery, error) {
-	return &BackoffDiscovery{
+type BackoffDiscoveryOption func(*BackoffDiscovery) error
+
+func NewBackoffDiscovery(disc discovery.Discovery, stratFactory BackoffFactory, opts ...BackoffDiscoveryOption) (discovery.Discovery, error) {
+	b := &BackoffDiscovery{
 		disc:         disc,
 		stratFactory: stratFactory,
 		peerCache:    make(map[string]*backoffCache),
-	}, nil
+
+		parallelBufSz: 32,
+		returnedBufSz: 32,
+	}
+
+	for _, opt := range opts {
+		if err := opt(b); err != nil {
+			return nil, err
+		}
+	}
+
+	return b, nil
+}
+
+func WithBackoffDiscoverySimultaneousQueryBufferSize(size int) BackoffDiscoveryOption {
+	return func(b *BackoffDiscovery) error {
+		if size < 0 {
+			return fmt.Errorf("cannot set size to be smaller than 0")
+		}
+		b.parallelBufSz = size
+		return nil
+	}
+}
+
+func WithBackoffDiscoveryReturnedChannelSize(size int) BackoffDiscoveryOption {
+	return func(b *BackoffDiscovery) error {
+		if size < 0 {
+			return fmt.Errorf("cannot set size to be smaller than 0")
+		}
+		b.returnedBufSz = size
+		return nil
+	}
 }
 
 type backoffCache struct {
@@ -119,8 +156,8 @@ func (d *BackoffDiscovery) FindPeers(ctx context.Context, ns string, opts ...dis
 	}
 
 	// Setup receiver channel for receiving peers from ongoing requests
-	evtCh := make(chan peer.AddrInfo, 32)
-	pch := make(chan peer.AddrInfo, 32)
+	evtCh := make(chan peer.AddrInfo, d.parallelBufSz)
+	pch := make(chan peer.AddrInfo, d.returnedBufSz)
 	rcvPeers := make([]peer.AddrInfo, 0, 32)
 	for _, ai := range c.peers {
 		rcvPeers = append(rcvPeers, ai)

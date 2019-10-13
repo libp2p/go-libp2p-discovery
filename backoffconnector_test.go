@@ -81,7 +81,7 @@ func TestBackoffConnector(t *testing.T) {
 	bc.Connect(ctx, loadCh(hosts))
 
 	time.Sleep(time.Millisecond * 100)
-	if expected, actual := len(hosts) - 1, len(primary.Network().Conns()); actual != expected {
+	if expected, actual := len(hosts)-1, len(primary.Network().Conns()); actual != expected {
 		t.Fatalf("wrong number of connections. expected %d, actual %d", expected, actual)
 	}
 
@@ -102,7 +102,7 @@ func TestBackoffConnector(t *testing.T) {
 	bc.Connect(ctx, loadCh(hosts))
 
 	time.Sleep(time.Millisecond * 100)
-	if expected, actual := len(hosts) - 2, len(primary.Network().Conns()); actual != expected {
+	if expected, actual := len(hosts)-2, len(primary.Network().Conns()); actual != expected {
 		t.Fatalf("wrong number of connections. expected %d, actual %d", expected, actual)
 	}
 }
