@@ -43,6 +43,8 @@ func NewBackoffDiscovery(disc discovery.Discovery, stratFactory BackoffFactory, 
 	return b, nil
 }
 
+// WithBackoffDiscoverySimultaneousQueryBufferSize sets the buffer size for the channels between the main FindPeers query
+// for a given namespace and all simultaneous FindPeers queries for the namespace
 func WithBackoffDiscoverySimultaneousQueryBufferSize(size int) BackoffDiscoveryOption {
 	return func(b *BackoffDiscovery) error {
 		if size < 0 {
@@ -53,6 +55,8 @@ func WithBackoffDiscoverySimultaneousQueryBufferSize(size int) BackoffDiscoveryO
 	}
 }
 
+// WithBackoffDiscoveryReturnedChannelSize sets the size of the buffer to be used during a FindPeer query.
+// Note: This does not apply if the query occurs during the backoff time
 func WithBackoffDiscoveryReturnedChannelSize(size int) BackoffDiscoveryOption {
 	return func(b *BackoffDiscovery) error {
 		if size < 0 {

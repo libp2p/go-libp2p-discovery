@@ -8,8 +8,11 @@ import (
 
 type BackoffFactory func() BackoffStrategy
 
+// BackoffStrategy describes how backoff will be implemented. BackoffStratgies are stateful.
 type BackoffStrategy interface {
+	// Delay calculates how long the next backoff duration should be, given the prior calls to Delay
 	Delay() time.Duration
+	// Reset clears the internal state of the BackoffStrategy
 	Reset()
 }
 
@@ -18,6 +21,8 @@ type BackoffStrategy interface {
 // Jitter must return a duration between min and max. Min must be lower than, or equal to, max.
 type Jitter func(duration time.Duration, min time.Duration, max time.Duration, rng *rand.Rand) time.Duration
 
+// FullJitter returns a random number uniformly chose from the range [min, boundedDur].
+// boundedDur is the duration bounded between min and max.
 func FullJitter(duration time.Duration, min time.Duration, max time.Duration, rng *rand.Rand) time.Duration {
 	if duration <= min {
 		return min
@@ -28,6 +33,7 @@ func FullJitter(duration time.Duration, min time.Duration, max time.Duration, rn
 	return boundedDuration(time.Duration(rng.Int63n(int64(normalizedDur)))+min, min, max)
 }
 
+// NoJitter returns the duration bounded between min and max
 func NoJitter(duration time.Duration, min time.Duration, max time.Duration, rng *rand.Rand) time.Duration {
 	return boundedDuration(duration, min, max)
 }
@@ -62,6 +68,7 @@ func (b *attemptBackoff) Reset() {
 	b.attempt = 0
 }
 
+// NewFixedBackoff creates a BackoffFactory with a constant backoff duration
 func NewFixedBackoff(delay time.Duration) BackoffFactory {
 	return func() BackoffStrategy {
 		return &fixedBackoff{delay: delay}
@@ -78,6 +85,10 @@ func (b *fixedBackoff) Delay() time.Duration {
 
 func (b *fixedBackoff) Reset() {}
 
+// NewPolynomialBackoff creates a BackoffFactory with backoff of the form c0*x^0, c1*x^1, ...cn*x^n where x is the attempt number
+// jitter is the function for adding randomness around the backoff
+// timeUnits are the units of time the polynomial is evaluated in
+// polyCoefs is the array of polynomial coefficients from [c0, c1, ... cn]
 func NewPolynomialBackoff(min, max time.Duration, jitter Jitter,
 	timeUnits time.Duration, polyCoefs []float64, rng *rand.Rand) BackoffFactory {
 	return func() BackoffStrategy {
@@ -123,6 +134,9 @@ func (b *polynomialBackoff) Delay() time.Duration {
 	return b.jitter(time.Duration(float64(b.timeUnits)*polySum), b.min, b.max, b.rng)
 }
 
+// NewExponentialBackoff creates a BackoffFactory with backoff of the form base^x + offset where x is the attempt number
+// jitter is the function for adding randomness around the backoff
+// timeUnits are the units of time the base^x is evaluated in
 func NewExponentialBackoff(min, max time.Duration, jitter Jitter,
 	timeUnits time.Duration, base float64, offset time.Duration, rng *rand.Rand) BackoffFactory {
 	return func() BackoffStrategy {
@@ -156,6 +170,9 @@ func (b *exponentialBackoff) Delay() time.Duration {
 		time.Duration(math.Pow(b.base, float64(attempt))*float64(b.timeUnits))+b.offset, b.min, b.max, b.rng)
 }
 
+// NewExponentialDecorrelatedJitter creates a BackoffFactory with backoff of the roughly of the form base^x where x is the attempt number.
+// Delays start at the minimum duration and after each attempt delay = rand(min, delay * base), bounded by the max
+// See https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/ for more information
 func NewExponentialDecorrelatedJitter(min, max time.Duration, base float64, rng *rand.Rand) BackoffFactory {
 	return func() BackoffStrategy {
 		return &exponentialDecorrelatedJitter{

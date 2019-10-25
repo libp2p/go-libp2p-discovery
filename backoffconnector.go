@@ -10,6 +10,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/peer"
 )
 
+// BackoffConnector is a utility to connect to peers, but only if we have not recently tried connecting to them already
 type BackoffConnector struct {
 	cache      *lru.TwoQueueCache
 	host       host.Host
@@ -18,6 +19,10 @@ type BackoffConnector struct {
 	mux        sync.Mutex
 }
 
+// NewBackoffConnector creates a utility to connect to peers, but only if we have not recently tried connecting to them already
+// cacheSize is the size of a TwoQueueCache
+// connectionTryDuration is how long we attempt to connect to a peer before giving up
+// backoff describes the strategy used to decide how long to backoff after previously attempting to connect to a peer
 func NewBackoffConnector(h host.Host, cacheSize int, connectionTryDuration time.Duration, backoff BackoffFactory) (*BackoffConnector, error) {
 	cache, err := lru.New2Q(cacheSize)
 	if err != nil {
@@ -37,6 +42,7 @@ type connCacheData struct {
 	strat   BackoffStrategy
 }
 
+// Connect attemps to connect to the peers passed in by peerCh. Will not connect to peers if they are within the backoff period.
 func (c *BackoffConnector) Connect(ctx context.Context, peerCh <-chan peer.AddrInfo) {
 	for {
 		select {
