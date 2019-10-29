@@ -19,11 +19,11 @@ type BackoffStrategy interface {
 // Jitter implementations taken roughly from https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
 
 // Jitter must return a duration between min and max. Min must be lower than, or equal to, max.
-type Jitter func(duration time.Duration, min, max time.Duration, rng *rand.Rand) time.Duration
+type Jitter func(duration, min, max time.Duration, rng *rand.Rand) time.Duration
 
 // FullJitter returns a random number uniformly chose from the range [min, boundedDur].
 // boundedDur is the duration bounded between min and max.
-func FullJitter(duration time.Duration, min, max time.Duration, rng *rand.Rand) time.Duration {
+func FullJitter(duration, min, max time.Duration, rng *rand.Rand) time.Duration {
 	if duration <= min {
 		return min
 	}
@@ -34,7 +34,7 @@ func FullJitter(duration time.Duration, min, max time.Duration, rng *rand.Rand) 
 }
 
 // NoJitter returns the duration bounded between min and max
-func NoJitter(duration time.Duration, min, max time.Duration, rng *rand.Rand) time.Duration {
+func NoJitter(duration, min, max time.Duration, rng *rand.Rand) time.Duration {
 	return boundedDuration(duration, min, max)
 }
 
@@ -48,7 +48,7 @@ func (b *randomizedBackoff) BoundedDelay(duration time.Duration) time.Duration {
 	return boundedDuration(duration, b.min, b.max)
 }
 
-func boundedDuration(d time.Duration, min, max time.Duration) time.Duration {
+func boundedDuration(d, min, max time.Duration) time.Duration {
 	if d < min {
 		return min
 	}

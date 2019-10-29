@@ -42,7 +42,9 @@ type connCacheData struct {
 	strat   BackoffStrategy
 }
 
-// Connect attemps to connect to the peers passed in by peerCh. Will not connect to peers if they are within the backoff period.
+// Connect attempts to connect to the peers passed in by peerCh. Will not connect to peers if they are within the backoff period.
+// As Connect will attempt to dial peers as soon as it learns about them, the caller should try to keep the number,
+// and rate, of inbound peers manageable.
 func (c *BackoffConnector) Connect(ctx context.Context, peerCh <-chan peer.AddrInfo) {
 	for {
 		select {

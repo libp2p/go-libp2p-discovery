@@ -129,7 +129,7 @@ func (d *BackoffDiscovery) FindPeers(ctx context.Context, ns string, opts ...dis
 	timeExpired := time.Now().After(c.nextDiscover)
 
 	// If it's not yet time to search again and no searches are in progress then return cached peers
-	if !(timeExpired || c.ongoing){
+	if !(timeExpired || c.ongoing) {
 		chLen := options.Limit
 
 		if chLen == 0 {
