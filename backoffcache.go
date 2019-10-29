@@ -126,24 +126,10 @@ func (d *BackoffDiscovery) FindPeers(ctx context.Context, ns string, opts ...dis
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
-	findPeers := !ok
-	timeExpired := false
-	if !findPeers {
-		timeExpired = time.Now().After(c.nextDiscover)
-		findPeers = timeExpired && !c.ongoing
-	}
+	timeExpired := time.Now().After(c.nextDiscover)
 
-	// If we should find peers then setup a dispatcher channel for dispatching incoming peers
-	if findPeers {
-		pch, err := d.disc.FindPeers(ctx, ns, opts...)
-		if err != nil {
-			return nil, err
-		}
-
-		c.ongoing = true
-		go findPeerDispatcher(ctx, c, pch)
-		// If it's not yet time to search again then return cached peers
-	} else if !timeExpired {
+	// If it's not yet time to search again and no searches are in progress then return cached peers
+	if !(timeExpired || c.ongoing){
 		chLen := options.Limit
 
 		if chLen == 0 {
@@ -157,6 +143,17 @@ func (d *BackoffDiscovery) FindPeers(ctx context.Context, ns string, opts ...dis
 		}
 		close(pch)
 		return pch, nil
+	}
+
+	// If a request is not already in progress setup a dispatcher channel for dispatching incoming peers
+	if !c.ongoing {
+		pch, err := d.disc.FindPeers(ctx, ns, opts...)
+		if err != nil {
+			return nil, err
+		}
+
+		c.ongoing = true
+		go findPeerDispatcher(ctx, c, pch)
 	}
 
 	// Setup receiver channel for receiving peers from ongoing requests
