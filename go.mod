@@ -6,7 +6,7 @@ require (
 	github.com/ipfs/go-log v1.0.2
 	github.com/libp2p/go-libp2p-blankhost v0.1.4
 	github.com/libp2p/go-libp2p-core v0.3.0
-	github.com/libp2p/go-libp2p-peerstore v0.1.4
+	github.com/libp2p/go-libp2p-peerstore v0.2.1
 	github.com/libp2p/go-libp2p-swarm v0.2.2
 	github.com/multiformats/go-multihash v0.0.13
 )
