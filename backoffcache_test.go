@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"context"
+	"math/rand"
 	"testing"
 	"time"
 
@@ -67,7 +68,7 @@ func TestBackoffDiscoverySingleBackoff(t *testing.T) {
 	d2 := &mockDiscoveryClient{h2, discServer}
 
 	bkf := NewExponentialBackoff(time.Millisecond*100, time.Second*10, NoJitter,
-		time.Millisecond*100, 2.5, 0, 0)
+		time.Millisecond*100, 2.5, 0, rand.NewSource(0))
 	dCache, err := NewBackoffDiscovery(d1, bkf)
 	if err != nil {
 		t.Fatal(err)
@@ -101,7 +102,7 @@ func TestBackoffDiscoveryMultipleBackoff(t *testing.T) {
 
 	// Startup delay is 0ms. First backoff after finding data is 100ms, second backoff is 250ms.
 	bkf := NewExponentialBackoff(time.Millisecond*100, time.Second*10, NoJitter,
-		time.Millisecond*100, 2.5, 0, 0)
+		time.Millisecond*100, 2.5, 0, rand.NewSource(0))
 	dCache, err := NewBackoffDiscovery(d1, bkf)
 	if err != nil {
 		t.Fatal(err)

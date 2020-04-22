@@ -39,7 +39,7 @@ func TestFixedBackoff(t *testing.T) {
 }
 
 func TestPolynomialBackoff(t *testing.T) {
-	bkf := NewPolynomialBackoff(time.Second, time.Second*33, NoJitter, time.Second, []float64{0.5, 2, 3}, 0)
+	bkf := NewPolynomialBackoff(time.Second, time.Second*33, NoJitter, time.Second, []float64{0.5, 2, 3}, rand.NewSource(0))
 	b1 := bkf()
 	b2 := bkf()
 
@@ -58,7 +58,7 @@ func TestPolynomialBackoff(t *testing.T) {
 }
 
 func TestExponentialBackoff(t *testing.T) {
-	bkf := NewExponentialBackoff(time.Millisecond*650, time.Second*7, NoJitter, time.Second, 1.5, -time.Millisecond*400, 0)
+	bkf := NewExponentialBackoff(time.Millisecond*650, time.Second*7, NoJitter, time.Second, 1.5, -time.Millisecond*400, rand.NewSource(0))
 	b1 := bkf()
 	b2 := bkf()
 
@@ -125,17 +125,17 @@ func TestFullJitter(t *testing.T) {
 }
 
 func TestManyBackoffFactory(t *testing.T) {
-	rng := rand.New(rand.NewSource(0))
+	rngSource := rand.NewSource(0)
 	concurrent := 10
 
 	t.Run("Exponential", func(t *testing.T) {
 		testManyBackoffFactoryHelper(concurrent,
-			NewExponentialBackoff(time.Millisecond*650, time.Second*7, FullJitter, time.Second, 1.5, -time.Millisecond*400, rng),
+			NewExponentialBackoff(time.Millisecond*650, time.Second*7, FullJitter, time.Second, 1.5, -time.Millisecond*400, rngSource),
 		)
 	})
 	t.Run("Polynomial", func(t *testing.T) {
 		testManyBackoffFactoryHelper(concurrent,
-			NewPolynomialBackoff(time.Second, time.Second*33, NoJitter, time.Second, []float64{0.5, 2, 3}, rng),
+			NewPolynomialBackoff(time.Second, time.Second*33, NoJitter, time.Second, []float64{0.5, 2, 3}, rngSource),
 		)
 	})
 	t.Run("Fixed", func(t *testing.T) {
@@ -175,7 +175,7 @@ func testManyBackoffFactoryHelper(concurrent int, bkf BackoffFactory) {
 				}
 			}()
 
-			for i := 0; i < 5 ; i++ {
+			for i := 0; i < 5; i++ {
 				for j := 0; j < 10; j++ {
 					backoff.Delay()
 				}

@@ -91,8 +91,8 @@ func (b *fixedBackoff) Reset() {}
 // timeUnits are the units of time the polynomial is evaluated in
 // polyCoefs is the array of polynomial coefficients from [c0, c1, ... cn]
 func NewPolynomialBackoff(min, max time.Duration, jitter Jitter,
-	timeUnits time.Duration, polyCoefs []float64, rngSeed int64) BackoffFactory {
-	rng := rand.New(&lockedSource{src: rand.NewSource(rngSeed)})
+	timeUnits time.Duration, polyCoefs []float64, rngSrc rand.Source) BackoffFactory {
+	rng := rand.New(&lockedSource{src: rngSrc})
 	return func() BackoffStrategy {
 		return &polynomialBackoff{
 			attemptBackoff: attemptBackoff{
@@ -140,8 +140,8 @@ func (b *polynomialBackoff) Delay() time.Duration {
 // jitter is the function for adding randomness around the backoff
 // timeUnits are the units of time the base^x is evaluated in
 func NewExponentialBackoff(min, max time.Duration, jitter Jitter,
-	timeUnits time.Duration, base float64, offset time.Duration, rngSeed int64) BackoffFactory {
-	rng := rand.New(&lockedSource{src: rand.NewSource(rngSeed)})
+	timeUnits time.Duration, base float64, offset time.Duration, rngSrc rand.Source) BackoffFactory {
+	rng := rand.New(&lockedSource{src: rngSrc})
 	return func() BackoffStrategy {
 		return &exponentialBackoff{
 			attemptBackoff: attemptBackoff{
@@ -176,8 +176,8 @@ func (b *exponentialBackoff) Delay() time.Duration {
 // NewExponentialDecorrelatedJitter creates a BackoffFactory with backoff of the roughly of the form base^x where x is the attempt number.
 // Delays start at the minimum duration and after each attempt delay = rand(min, delay * base), bounded by the max
 // See https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/ for more information
-func NewExponentialDecorrelatedJitter(min, max time.Duration, base float64, rngSeed int64) BackoffFactory {
-	rng := rand.New(&lockedSource{src: rand.NewSource(rngSeed)})
+func NewExponentialDecorrelatedJitter(min, max time.Duration, base float64, rngSrc rand.Source) BackoffFactory {
+	rng := rand.New(&lockedSource{src: rngSrc})
 	return func() BackoffStrategy {
 		return &exponentialDecorrelatedJitter{
 			randomizedBackoff: randomizedBackoff{
