@@ -1,6 +1,8 @@
 package discovery
 
 import (
+	"fmt"
+	"golang.org/x/sync/errgroup"
 	"math/rand"
 	"testing"
 	"time"
@@ -37,8 +39,7 @@ func TestFixedBackoff(t *testing.T) {
 }
 
 func TestPolynomialBackoff(t *testing.T) {
-	rng := rand.New(rand.NewSource(0))
-	bkf := NewPolynomialBackoff(time.Second, time.Second*33, NoJitter, time.Second, []float64{0.5, 2, 3}, rng)
+	bkf := NewPolynomialBackoff(time.Second, time.Second*33, NoJitter, time.Second, []float64{0.5, 2, 3}, rand.NewSource(0))
 	b1 := bkf()
 	b2 := bkf()
 
@@ -57,8 +58,7 @@ func TestPolynomialBackoff(t *testing.T) {
 }
 
 func TestExponentialBackoff(t *testing.T) {
-	rng := rand.New(rand.NewSource(0))
-	bkf := NewExponentialBackoff(time.Millisecond*650, time.Second*7, NoJitter, time.Second, 1.5, -time.Millisecond*400, rng)
+	bkf := NewExponentialBackoff(time.Millisecond*650, time.Second*7, NoJitter, time.Second, 1.5, -time.Millisecond*400, rand.NewSource(0))
 	b1 := bkf()
 	b2 := bkf()
 
@@ -121,5 +121,71 @@ func TestFullJitter(t *testing.T) {
 
 	if histogram[numBuckets-1] > 0 {
 		t.Fatal("jitter increased overall time")
+	}
+}
+
+func TestManyBackoffFactory(t *testing.T) {
+	rngSource := rand.NewSource(0)
+	concurrent := 10
+
+	t.Run("Exponential", func(t *testing.T) {
+		testManyBackoffFactoryHelper(concurrent,
+			NewExponentialBackoff(time.Millisecond*650, time.Second*7, FullJitter, time.Second, 1.5, -time.Millisecond*400, rngSource),
+		)
+	})
+	t.Run("Polynomial", func(t *testing.T) {
+		testManyBackoffFactoryHelper(concurrent,
+			NewPolynomialBackoff(time.Second, time.Second*33, NoJitter, time.Second, []float64{0.5, 2, 3}, rngSource),
+		)
+	})
+	t.Run("Fixed", func(t *testing.T) {
+		testManyBackoffFactoryHelper(concurrent,
+			NewFixedBackoff(time.Second),
+		)
+	})
+}
+
+func testManyBackoffFactoryHelper(concurrent int, bkf BackoffFactory) {
+	backoffCh := make(chan BackoffStrategy, concurrent)
+
+	errGrp := errgroup.Group{}
+	for i := 0; i < concurrent; i++ {
+		errGrp.Go(func() (err error) {
+			defer func() {
+				if r := recover(); r != nil {
+					err = fmt.Errorf("panic %v", r)
+				}
+			}()
+			backoffCh <- bkf()
+			return
+		})
+	}
+	if err := errGrp.Wait(); err != nil {
+		panic(err)
+	}
+	close(backoffCh)
+
+	errGrp = errgroup.Group{}
+	for b := range backoffCh {
+		backoff := b
+		errGrp.Go(func() (err error) {
+			defer func() {
+				if r := recover(); r != nil {
+					err = fmt.Errorf("panic %v", r)
+				}
+			}()
+
+			for i := 0; i < 5; i++ {
+				for j := 0; j < 10; j++ {
+					backoff.Delay()
+				}
+				backoff.Reset()
+			}
+			return
+		})
+	}
+
+	if err := errGrp.Wait(); err != nil {
+		panic(err)
 	}
 }
