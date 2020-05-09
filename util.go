@@ -29,23 +29,31 @@ func FindPeers(ctx context.Context, d Discoverer, ns string, opts ...Option) ([]
 
 // Advertise is a utility function that persistently advertises a service through an Advertiser.
 func Advertise(ctx context.Context, a Advertiser, ns string, opts ...Option) {
+	et := 2 * time.Minute
 	go func() {
 		for {
 			ttl, err := a.Advertise(ctx, ns, opts...)
 			if err != nil {
+				ttl = et
 				log.Debugf("Error advertising %s: %s", ns, err.Error())
 				if ctx.Err() != nil {
 					return
 				}
-
-				select {
-				case <-time.After(2 * time.Minute):
-					continue
-				case <-ctx.Done():
-					return
+				// add by cc14514 : filter out the empty routingtable err
+				if strings.Contains(err.Error(), "failed to find any peer in table") {
+					var options Options
+					if err := options.Apply(opts...); err == nil && options.Ttl > 0 {
+						ttl = options.Ttl
+					}
+				} else {
+					select {
+					case <-time.After(et):
+						continue
+					case <-ctx.Done():
+						return
+					}
 				}
 			}
-
 			wait := 7 * ttl / 8
 			select {
 			case <-time.After(wait):
