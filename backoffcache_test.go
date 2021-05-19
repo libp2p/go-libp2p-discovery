@@ -172,7 +172,7 @@ func TestBackoffDiscoverySimultaneousQuery(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_ = <-ch1
+	<-ch1
 	ch2, err := dCache.FindPeers(ctx, ns)
 	if err != nil {
 		t.Fatal(err)
@@ -185,7 +185,7 @@ func TestBackoffDiscoverySimultaneousQuery(t *testing.T) {
 	}
 
 	szCh1 := 1
-	for _ = range ch1 {
+	for range ch1 {
 		szCh1++
 	}
 

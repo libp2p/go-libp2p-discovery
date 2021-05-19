@@ -75,17 +75,6 @@ func (s *mockDiscoveryServer) FindPeers(ns string, limit int) (<-chan peer.AddrI
 	return ch, nil
 }
 
-func (s *mockDiscoveryServer) hasPeerRecord(ns string, pid peer.ID) bool {
-	s.mx.Lock()
-	defer s.mx.Unlock()
-
-	if peers, ok := s.db[ns]; ok {
-		_, ok := peers[pid]
-		return ok
-	}
-	return false
-}
-
 type mockDiscoveryClient struct {
 	host   host.Host
 	server *mockDiscoveryServer
