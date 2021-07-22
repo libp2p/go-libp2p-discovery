@@ -90,7 +90,7 @@ func TestRoutingDiscovery(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	pis, err := FindPeers(ctx, d2, "/test", Limit(20))
+	pis, err := FindPeers(ctx, d2, "/test", discovery.Limit(20))
 	if err != nil {
 		t.Fatal(err)
 	}
