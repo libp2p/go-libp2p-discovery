@@ -67,8 +67,10 @@ func TestBackoffDiscoverySingleBackoff(t *testing.T) {
 
 	discServer := newDiscoveryServer()
 
-	h1 := bhost.NewBlankHost(swarmt.GenSwarm(t, ctx))
-	h2 := bhost.NewBlankHost(swarmt.GenSwarm(t, ctx))
+	h1 := bhost.NewBlankHost(swarmt.GenSwarm(t))
+	defer h1.Close()
+	h2 := bhost.NewBlankHost(swarmt.GenSwarm(t))
+	defer h2.Close()
 	d1 := &mockDiscoveryClient{h1, discServer}
 	d2 := &mockDiscoveryClient{h2, discServer}
 
@@ -100,8 +102,10 @@ func TestBackoffDiscoveryMultipleBackoff(t *testing.T) {
 
 	discServer := newDiscoveryServer()
 
-	h1 := bhost.NewBlankHost(swarmt.GenSwarm(t, ctx))
-	h2 := bhost.NewBlankHost(swarmt.GenSwarm(t, ctx))
+	h1 := bhost.NewBlankHost(swarmt.GenSwarm(t))
+	defer h1.Close()
+	h2 := bhost.NewBlankHost(swarmt.GenSwarm(t))
+	defer h2.Close()
 	d1 := &mockDiscoveryClient{h1, discServer}
 	d2 := &mockDiscoveryClient{h2, discServer}
 
@@ -152,7 +156,8 @@ func TestBackoffDiscoverySimultaneousQuery(t *testing.T) {
 	advertisers := make([]discovery.Discovery, n)
 
 	for i := 0; i < n; i++ {
-		h := bhost.NewBlankHost(swarmt.GenSwarm(t, ctx))
+		h := bhost.NewBlankHost(swarmt.GenSwarm(t))
+		defer h.Close()
 		advertisers[i] = &mockDiscoveryClient{h, discServer}
 	}
 
@@ -210,11 +215,12 @@ func TestBackoffDiscoveryCacheCapacity(t *testing.T) {
 	advertisers := make([]discovery.Discovery, n)
 
 	for i := 0; i < n; i++ {
-		h := bhost.NewBlankHost(swarmt.GenSwarm(t, ctx))
+		h := bhost.NewBlankHost(swarmt.GenSwarm(t))
+		defer h.Close()
 		advertisers[i] = &mockDiscoveryClient{h, discServer}
 	}
 
-	h1 := bhost.NewBlankHost(swarmt.GenSwarm(t, ctx))
+	h1 := bhost.NewBlankHost(swarmt.GenSwarm(t))
 	d1 := &mockDiscoveryClient{h1, discServer}
 
 	const discoveryInterval = time.Millisecond * 100

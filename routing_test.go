@@ -75,8 +75,8 @@ func TestRoutingDiscovery(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	h1 := bhost.NewBlankHost(swarmt.GenSwarm(t, ctx))
-	h2 := bhost.NewBlankHost(swarmt.GenSwarm(t, ctx))
+	h1 := bhost.NewBlankHost(swarmt.GenSwarm(t))
+	h2 := bhost.NewBlankHost(swarmt.GenSwarm(t))
 
 	mtab := NewMockRoutingTable()
 	mr1 := NewMockRouting(h1, mtab)
@@ -109,8 +109,8 @@ func TestDiscoveryRouting(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	h1 := bhost.NewBlankHost(swarmt.GenSwarm(t, ctx))
-	h2 := bhost.NewBlankHost(swarmt.GenSwarm(t, ctx))
+	h1 := bhost.NewBlankHost(swarmt.GenSwarm(t))
+	h2 := bhost.NewBlankHost(swarmt.GenSwarm(t))
 
 	dserver := newDiscoveryServer()
 	d1 := &mockDiscoveryClient{h1, dserver}

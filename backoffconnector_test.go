@@ -41,8 +41,9 @@ func getNetHosts(t *testing.T, ctx context.Context, n int) []host.Host {
 	var out []host.Host
 
 	for i := 0; i < n; i++ {
-		netw := swarmt.GenSwarm(t, ctx)
+		netw := swarmt.GenSwarm(t)
 		h := bhost.NewBlankHost(netw)
+		t.Cleanup(func() { h.Close() })
 		out = append(out, h)
 	}
 
