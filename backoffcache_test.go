@@ -3,6 +3,7 @@ package discovery
 import (
 	"context"
 	"math/rand"
+	"os"
 	"testing"
 	"time"
 
@@ -97,6 +98,13 @@ func TestBackoffDiscoverySingleBackoff(t *testing.T) {
 }
 
 func TestBackoffDiscoveryMultipleBackoff(t *testing.T) {
+	scaleDuration := func(t time.Duration) time.Duration {
+		if os.Getenv("CI") != "" {
+			return 3 * t
+		}
+		return t
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -110,8 +118,15 @@ func TestBackoffDiscoveryMultipleBackoff(t *testing.T) {
 	d2 := &mockDiscoveryClient{h2, discServer}
 
 	// Startup delay is 0ms. First backoff after finding data is 100ms, second backoff is 250ms.
-	bkf := NewExponentialBackoff(time.Millisecond*100, time.Second*10, NoJitter,
-		time.Millisecond*100, 2.5, 0, rand.NewSource(0))
+	bkf := NewExponentialBackoff(
+		scaleDuration(time.Millisecond*100),
+		scaleDuration(time.Second*10),
+		NoJitter,
+		scaleDuration(time.Millisecond*100),
+		2.5,
+		0,
+		rand.NewSource(0),
+	)
 	dCache, err := NewBackoffDiscovery(d1, bkf)
 	if err != nil {
 		t.Fatal(err)
@@ -120,28 +135,28 @@ func TestBackoffDiscoveryMultipleBackoff(t *testing.T) {
 	const ns = "test"
 
 	// try adding a peer then find it
-	d1.Advertise(ctx, ns, discovery.TTL(time.Hour))
+	d1.Advertise(ctx, ns, discovery.TTL(scaleDuration(time.Hour)))
 	assertNumPeers(t, ctx, dCache, ns, 1)
 
 	// wait a little to make sure the extra request doesn't modify the backoff
-	time.Sleep(time.Millisecond * 50) // 50 < 100
+	time.Sleep(scaleDuration(time.Millisecond * 50)) // 50 < 100
 	assertNumPeers(t, ctx, dCache, ns, 1)
 
 	// wait for backoff to expire and check if we increase it
-	time.Sleep(time.Millisecond * 60) // 50+60 > 100
+	time.Sleep(scaleDuration(time.Millisecond * 60)) // 50+60 > 100
 	assertNumPeers(t, ctx, dCache, ns, 1)
 
-	d2.Advertise(ctx, ns, discovery.TTL(time.Millisecond*400))
+	d2.Advertise(ctx, ns, discovery.TTL(scaleDuration(time.Millisecond*400)))
 
-	time.Sleep(time.Millisecond * 150) // 150 < 250
+	time.Sleep(scaleDuration(time.Millisecond * 150)) // 150 < 250
 	assertNumPeers(t, ctx, dCache, ns, 1)
 
-	time.Sleep(time.Millisecond * 150) // 150 + 150 > 250
+	time.Sleep(scaleDuration(time.Millisecond * 150)) // 150 + 150 > 250
 	assertNumPeers(t, ctx, dCache, ns, 2)
 
 	// check that the backoff has been reset
 	// also checks that we can decrease our peer count (i.e. not just growing a set)
-	time.Sleep(time.Millisecond * 110) // 110 > 100, also 150+150+110>400
+	time.Sleep(scaleDuration(time.Millisecond * 110)) // 110 > 100, also 150+150+110>400
 	assertNumPeers(t, ctx, dCache, ns, 1)
 }
 
