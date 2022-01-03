@@ -8,7 +8,8 @@ import (
 
 	"github.com/libp2p/go-libp2p-core/discovery"
 	"github.com/libp2p/go-libp2p-core/peer"
-	"github.com/libp2p/go-libp2p-peerstore/addr"
+
+	ma "github.com/multiformats/go-multiaddr"
 )
 
 // BackoffDiscovery is an implementation of discovery that caches peer data and attenuates repeated queries
@@ -277,7 +278,22 @@ func findPeerReceiver(ctx context.Context, pch, evtCh chan peer.AddrInfo, rcvPee
 }
 
 func mergeAddrInfos(prevAi, newAi peer.AddrInfo) *peer.AddrInfo {
-	combinedAddrs := addr.UniqueSource(addr.Slice(prevAi.Addrs), addr.Slice(newAi.Addrs)).Addrs()
+	combinedAddrs := make([]ma.Multiaddr, 0, len(prevAi.Addrs))
+
+	addUnique := func(addrs []ma.Multiaddr) {
+	addrLoop:
+		for _, addr := range addrs {
+			for _, a := range combinedAddrs {
+				if addr.Equal(a) {
+					continue addrLoop
+				}
+			}
+			combinedAddrs = append(combinedAddrs, addr)
+		}
+	}
+	addUnique(prevAi.Addrs)
+	addUnique(newAi.Addrs)
+
 	if len(combinedAddrs) > len(prevAi.Addrs) {
 		combinedAi := &peer.AddrInfo{ID: prevAi.ID, Addrs: combinedAddrs}
 		return combinedAi
