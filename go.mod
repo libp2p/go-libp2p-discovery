@@ -1,15 +1,8 @@
 module github.com/libp2p/go-libp2p-discovery
 
 require (
-	github.com/hashicorp/golang-lru v0.5.4
-	github.com/ipfs/go-cid v0.0.7
-	github.com/ipfs/go-log/v2 v2.4.0
-	github.com/libp2p/go-libp2p-blankhost v0.2.0
-	github.com/libp2p/go-libp2p-core v0.11.0
-	github.com/libp2p/go-libp2p-swarm v0.8.0
-	github.com/multiformats/go-multiaddr v0.4.0
-	github.com/multiformats/go-multihash v0.0.15
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	github.com/libp2p/go-libp2p v0.18.0
+	github.com/libp2p/go-libp2p-core v0.14.0
 )
 
 go 1.16
